@@ -2,14 +2,15 @@
 
 require 'net/scp'
 require 'net/ssh'
+require 'optparse'
 
 require 'erb'
 require 'tmpdir'
 
 REQUIRED_RUBY_VERSION='2.6.5'
-APP_DIR = File.expand_path('/srv/roda-app')
+APP_DIR = File.expand_path('/srv/bank-app')
 SERVICE_NAME = 'application'
-APP_USER = 'roda-app'
+APP_USER = 'bank-app'
 
 
 class Deploy
@@ -80,6 +81,7 @@ class Deploy
   end
 
   def install_required_gems(application_directory)
+    checked_run('sudo', File.join(ruby_installation_path, 'gem'),'install','bundler')
     checked_run('sudo', File.join(ruby_installation_path, 'bundle'),
       'install', '--gemfile', File.join(application_directory, 'Gemfile'),
       '--jobs=4', '--retry=3',
@@ -126,10 +128,22 @@ class Deploy
   def restart_systemd_service
     checked_run('sudo', 'systemctl', 'restart', SERVICE_NAME)
   end
+
+  def command_string
+    options = {}
+    OptionParser.new do |wo|
+      wo.on('--user USER') {|a| options[:user]= a}
+      wo.on('--password PASSWORD') {|a| options[:password]= a}
+      wo.on('--host HOST') {|a| options[:host]= a }
+      end.parse!
+      options
+  end
+  
 end
 
 if __FILE__ == $0
   deployer = Deploy.new
-  deployer.deploy('192.168.0.138', 'user', 'user')
+  temp = deployer.command_string
+  deployer.deploy(temp[:'host'],temp[:'user'],temp[:'password'])
 end
 

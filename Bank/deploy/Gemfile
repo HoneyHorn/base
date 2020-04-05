@@ -6,9 +6,8 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
 # gem "rails"
 
-gem 'puma'
-gem 'sinatra'
-gem 'capybara'
-gem 'rspec'
-
+  gem 'bcrypt_pbkdf'
+  gem 'ed25519'
+  gem 'net-scp'
+  gem 'net-ssh'
 

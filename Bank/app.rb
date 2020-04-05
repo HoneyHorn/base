@@ -11,6 +11,7 @@ require_relative 'lib/dao'
 configure do
   set :deposit_list, Dao.read_deposit
   set :depositor_list, Dao.read_depositor
+  set :static,false
 end
 
 get '/' do
